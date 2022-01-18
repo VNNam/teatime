@@ -1,0 +1,1 @@
+const { Group } = require('./schema');

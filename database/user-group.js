@@ -1,0 +1,1 @@
+const { UserGroup } = require('./schema');
