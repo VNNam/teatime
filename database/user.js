@@ -1,4 +1,5 @@
 const { User } = require('./schema');
+const bcrypt = require('bcrypt');
 
 /**
  * tao mot user trong db
@@ -8,7 +9,7 @@ const { User } = require('./schema');
  * @param {object} user - User object
  *
  */
-exports.createUser = async function (user) {};
+exports.createUser = async function () {};
 
 /**
  * cap nhat thay doi thong tin cua mot user

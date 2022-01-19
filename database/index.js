@@ -9,13 +9,14 @@ const users = require('./user');
  * @async
  * @function dbConnection
  */
-function teatimedb() {
-  return mongoose
+const teatimedb = () => {
+  mongoose
     .connect(DB_CONNECTION, { dbName: DB_NAME })
     .then((db) => {
-      return { users };
+      console.log('DB connect success');
+      // return { users };
     })
-    .catch((error) => console.log(error));
-}
+    .catch((error) => console.log(error)); 
+} 
 teatimedb();
 module.exports = { teatimedb };

@@ -1,13 +1,44 @@
 const { Schema, model } = require('mongoose');
-
+const mongoose = require('mongoose'); 
 /**
  * User schema
  */
-const userSchema = new Schema({});
+const userSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        require: [true, 'require field email'],
+        unique: true
+    },
+    password: {
+        type: String,
+        require: [true, 'require field password'],
+    },
+    name: {
+        type: String,
+    },
+    otp: {
+        type: String,
+    },
+    role: {
+        type: Number,
+        default: 0,
+    },
+    status: {
+        type: Boolean,
+        default: false,
+    },
+    is_active: {
+        type: Boolean,
+        default: false,
+    },
+    followers: [
+        {type: mongoose.Types.ObjectId, ref: 'User'}
+    ]
+});
 /**
  * User model
  */
-const User = model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 /**
  * Chat group schema
  */
