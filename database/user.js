@@ -1,4 +1,4 @@
-const { User } = require('./schema');
+const { User, UserGroup } = require('./schema');
 
 /**
  * tao mot user trong db
@@ -8,7 +8,9 @@ const { User } = require('./schema');
  * @param {object} user - User object
  *
  */
-exports.createUser = async function (user) {};
+exports.createUser = async function (user) {
+  User.create();
+};
 
 /**
  * cap nhat thay doi thong tin cua mot user

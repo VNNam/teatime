@@ -1,3 +1,4 @@
+const { users } = require('../database');
 exports.login = async () => {
   throw new Error('Not implemented!');
 };
@@ -5,8 +6,8 @@ exports.login = async () => {
 exports.logout = () => {
   throw new Error('Not implemented!');
 };
-exports.register = () => {
-  throw new Error('Not implemented!');
+exports.register = async () => {
+  await users.activeUser();
 };
 exports.activate = () => {
   throw new Error('Not implemented!');

@@ -5,16 +5,17 @@ const users = require('./user');
 const groups = require('./group');
 const messages = require('./message');
 /**
- * ket noi den mongodb va cac ham thao tac tren collections
+ * ket noi den mongodb
  *
- * @returns users, groups, usergroups, messages
+ * @returns db
  */
-async function teatimedb() {
+async function teatimedb_connect() {
   try {
     const db = await mongoose.connect(DB_CONNECTION, { dbName: DB_NAME });
-    return { users, groups, messages };
+    return db;
   } catch (error) {
     return console.log(error);
   }
 }
-module.exports = { teatimedb };
+
+module.exports = { teatimedb_connect, users, groups, messages };
