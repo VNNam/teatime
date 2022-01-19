@@ -3,21 +3,18 @@ const { DB_CONNECTION, DB_NAME } = require('../config');
 const mongoose = require('mongoose');
 const users = require('./user');
 const groups = require('./group');
-const usergroups = require('./user-group');
 const messages = require('./message');
-
 /**
- * Tao ket noi den mongodb
+ * ket noi den mongodb va cac ham thao tac tren collections
  *
- * @async
- * @function dbConnection
+ * @returns users, groups, usergroups, messages
  */
-function teatimedb() {
-  return mongoose
-    .connect(DB_CONNECTION, { dbName: DB_NAME })
-    .then((db) => {
-      return { users, groups, usergroups, messages };
-    })
-    .catch((error) => console.log(error));
+async function teatimedb() {
+  try {
+    const db = await mongoose.connect(DB_CONNECTION, { dbName: DB_NAME });
+    return { users, groups, messages };
+  } catch (error) {
+    return console.log(error);
+  }
 }
 module.exports = { teatimedb };

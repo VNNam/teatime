@@ -48,3 +48,12 @@ exports.activeUser = async function (email, otp) {};
  * @param {number} limit - phan trang ket qua, mac dinh lay het du lieu
  */
 exports.getUser = async function (byField, limit = 0) {};
+
+/**
+ * lay danh sach follower
+ *
+ * @async
+ * @function getFollowers
+ * @param {string} id - objectId
+ */
+exports.getFollowers = async function (id) {};
