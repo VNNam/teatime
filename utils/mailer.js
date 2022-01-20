@@ -1,5 +1,13 @@
 const { createTransport } = require('nodemailer');
 const { USER, PWD } = require('../config');
+/**
+ * ham gui otp qua email cho nguoi dang ky tai khoan
+ *
+ * @async
+ * @function sendOTP
+ * @param {String} otp - doan otp
+ * @param {String} email - cua nguoi dang ky
+ */
 async function sendOTP(otp, email) {
   const tsp = createTransport({
     host: 'Gmail',
