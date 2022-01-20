@@ -20,6 +20,7 @@ const userSchema = new Schema({
     },
     required: true,
   },
+  otp: { type: Schema.Types.String },
   hashedPwd: { type: String, required: true },
   role: { type: String, enum: ['ADMIN', 'USER'], default: 'USER' },
   online: { type: Boolean, default: false },
