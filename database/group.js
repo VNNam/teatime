@@ -187,3 +187,15 @@ async function leaveGroup(groupId, userId) {
     return { error };
   }
 }
+
+module.exports = {
+  createGroup,
+  updateGroup,
+  addMember,
+  removeMember,
+  closeGroup,
+  getGroupAdmin,
+  getMembers,
+  leaveGroup,
+  setGroupAdmin,
+};

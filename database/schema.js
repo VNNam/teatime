@@ -65,7 +65,8 @@ const messageSchema = new Schema({
   messageContent: { type: String, required: true },
   createdAt: { type: Schema.Types.Date, default: new Date(), required: true },
   link: { type: Schema.Types.String },
-  pinned: { type: Schema.Types.Boolean },
+  pinned: { type: Schema.Types.Boolean, default: false },
+  hided: { type: Schema.Types.Boolean, default: false },
 });
 /**
  * Message model
