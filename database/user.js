@@ -1,15 +1,43 @@
 const { User, UserGroup } = require('./schema');
+const { hash, compare, genSalt } = require('bcrypt');
+const { SALT_ROUND, JWT_SECRET, OTP_EXPIRESIN } = require('../config');
+const jwt = require('jsonwebtoken');
 
 /**
- * tao mot user trong db
+ * ham kiem tra email da co trong db hay chua
+ *
+ * @async
+ * @param {String} email
+ * @returns {boolean}
+ */
+const hasEmail = async (email) => {
+  try {
+    const user = await User.findOne({ email }, 'email').exec();
+    return user ? true : false;
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+/**
+ * ham tao mot user trong db
  *
  * @async
  * @function createUser
- * @param {object} user - User object
- *
+ * @param {String} email
+ * @param {Sring} fullName
+ * @param {String} password -plaintext password
+ * @returns user neu thanh cong, error neu that bai
  */
-exports.createUser = async function (user) {
-  User.create();
+exports.createUser = async function (email, fullName, password) {
+  try {
+    if (hasEmail(email)) throw new Error('email has registerd');
+    const hashedPwd = await hash(password, SALT_ROUND);
+    const user = await User.create({ email, fullName, hashedPwd });
+    return { user };
+  } catch (error) {
+    return { error };
+  }
 };
 
 /**
@@ -19,17 +47,38 @@ exports.createUser = async function (user) {
  * @function updateUser
  * @param {object} byField - dieu kien de update
  * @param {object} update - thong tin thay doi
+ * @returns updatedUser neu thanh cong, error neu that bai
  */
-exports.updateUser = async function (byField, update = null) {};
+exports.updateUser = async function (byField, update = {}) {
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { ...byField },
+      { ...update }
+    ).exec();
+    return { updatedUser };
+  } catch (error) {
+    return { error };
+  }
+};
 
 /**
- * dat trang thai mot user ve locked
+ * dat thuoc tinh cua user: isActivated = false
  *
  * @async
  * @function deleteUser
  * @param {string} id
+ * @returns lockedUser neu thanh cong, error neu that bai
  */
-exports.deleteUser = async function (id) {};
+exports.deleteUser = async function (id) {
+  try {
+    const lockedUser = User.findByIdAndUpdate(id, {
+      isActivated: false,
+    }).exec();
+    return { lockedUser };
+  } catch (error) {
+    return { error };
+  }
+};
 
 /**
  * kich hoat mot tai khoan moi dang ky, hoac kich hoat lai mot tai khoan bi khoa
@@ -38,8 +87,28 @@ exports.deleteUser = async function (id) {};
  * @function activeUser
  * @param {string} email
  * @param {string} otp -  a string consist 6 number.
+ * @returns user._id neu thanh cong, error neu that bai
  */
-exports.activeUser = async function (email, otp) {};
+exports.activeUser = async function (email, otp) {
+  try {
+    if (!hasEmail(email)) throw new Error('email is not registered');
+    const user = await User.findOne({ email }, '_id otp').exec();
+    const decoded = jwt.verify(user.otp, JWT_SECRET);
+    if (decoded.otp === otp) {
+      const activatedUser = await User.findByIdAndUpdate(
+        user._id,
+        {
+          isActivated: true,
+          otp: null,
+        },
+        '_id'
+      ).exec();
+      return { activatedUser };
+    }
+  } catch (error) {
+    return { error };
+  }
+};
 
 /**
  * lay thong tin mot user theo thuoc tinh
@@ -49,13 +118,51 @@ exports.activeUser = async function (email, otp) {};
  * @param {object} byField
  * @param {number} limit - phan trang ket qua, mac dinh lay het du lieu
  */
-exports.getUser = async function (byField, limit = 0) {};
+exports.getUser = async function (byField, limit = 0) {
+  try {
+    const users = await User.find({ ...byField })
+      .limit(limit)
+      .exec();
+    return { users };
+  } catch (error) {
+    return { error };
+  }
+};
 
 /**
- * lay danh sach follower
+ * ham lay thong tin followers
  *
  * @async
- * @function getFollowers
- * @param {string} id - objectId
+ * @param {string} id
+ * @returns user {_id, followers:[{fullName}]}
  */
-exports.getFollowers = async function (id) {};
+exports.getFollowers = async function (id) {
+  try {
+    const user = await User.findById(id, '_id followers')
+      .populate('followers', 'fullName')
+      .exec();
+    return { user };
+  } catch (error) {
+    return { error };
+  }
+};
+
+/**
+ * ham luu otp xuong db
+ *
+ * @async
+ * @param {string} id
+ * @param {string} otp - 6 digits
+ * @returns
+ */
+exports.setOTP = async function (id, otp) {
+  try {
+    const encoded = jwt.sign({ otp }, JWT_SECRET, { expiresIn: OTP_EXPIRESIN });
+    const updatedUser = await User.findByIdAndUpdate(id, {
+      otp: encoded,
+    }).exec();
+    return { updatedUser };
+  } catch (error) {
+    return { error };
+  }
+};
