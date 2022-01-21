@@ -1,6 +1,25 @@
 const { users } = require('../database');
-exports.login = async () => {
-  throw new Error('Not implemented!');
+
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await users.getOneUser({ email: email});
+    if(!user) throw new Error(`can't found account`);
+
+    if(! await users.hasPassword(password, user.hashedPwd)) 
+      throw new Error(`error check decoding password`);
+
+    const token = await users.createToken(user);
+
+    return res
+      .cookie("token", token, { maxAge: 900000 })
+      .json({ 
+        message: "Login success",
+        token,
+      })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
 };
 
 exports.logout = () => {

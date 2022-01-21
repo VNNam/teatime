@@ -1,6 +1,6 @@
 const { User, UserGroup } = require('./schema');
 const bcrypt = require('bcrypt');
-const { SALT_ROUND, JWT_SECRET, OTP_EXPIRESIN } = require('../config');
+const { SALT_ROUND, JWT_SECRET, OTP_EXPIRESIN, JWT_KEY } = require('../config');
 const jwt = require('jsonwebtoken');
 
 /**
@@ -126,7 +126,7 @@ exports.getUser = async function (byField, limit = 0) {
       .limit(limit)
       .select('-hashedPwd')
       .exec();
-    return { users };
+    return users;
   } catch (error) {
     return { error };
   }
@@ -170,3 +170,51 @@ exports.setOTP = async function (id, otp) {
     return { error };
   }
 };
+
+/**
+ * ham kiem tra password nguoi dung nhap vao co dung khong
+ *
+ * @async
+ * @param {String} password
+ * @returns {boolean}
+ */
+exports.hasPassword = async function (password, hasPassword) {
+  try {
+    const result = await bcrypt.compare(password, hasPassword)
+    return result;
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+/**
+ * ham lay thong tin 1 user
+ *
+ * @async
+ * @param {object} byField
+ * @returns user {_id, followers:[{fullName}]}
+ */
+exports.getOneUser = async function (byField) {
+  try {
+    const user = await User.findOne({ ...byField })
+      .populate('followers', 'fullName')
+      .exec();
+    return user;
+  } catch (error) {
+    return { error };
+  }
+};
+
+exports.createToken = async function (user) {
+  const token = await jwt.sign(
+    {
+        userData: {
+            _id: user._id,
+            username: user.email,
+        },
+        exp: 60 * 60 * 60 * 60 * 1000,
+    },
+    JWT_KEY
+  )
+  return token;
+}

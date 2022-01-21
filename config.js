@@ -8,4 +8,5 @@ module.exports = {
   PWD: process.env.PWD,
   JWT_SECRET: process.env.JWT_SECRET,
   OTP_EXPIRESIN: process.env.OTP_EXPIRESIN,
+  JWT_KEY: process.env.JWT_KEY,
 };
