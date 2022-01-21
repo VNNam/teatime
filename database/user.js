@@ -2,6 +2,7 @@ const { User, UserGroup } = require('./schema');
 const bcrypt = require('bcrypt');
 const { SALT_ROUND, JWT_SECRET, OTP_EXPIRESIN, JWT_KEY } = require('../config');
 const jwt = require('jsonwebtoken');
+const { Types } = require('mongoose');
 
 /**
  * ham kiem tra email da co trong db hay chua
@@ -53,7 +54,11 @@ exports.updateUser = async function (byField, update = {}) {
   try {
     const updatedUser = await User.findOneAndUpdate(
       { ...byField },
-      { ...update }
+      {
+        $set: {
+          ...update,
+        },
+      }
     )
       .select('-hashedPwd')
       .exec();
@@ -74,7 +79,9 @@ exports.updateUser = async function (byField, update = {}) {
 exports.deleteUser = async function (id) {
   try {
     const lockedUser = await User.findByIdAndUpdate(id, {
-      isActivated: false,
+      $set: {
+        isActivated: false,
+      },
     })
       .select('-hashedPwd')
       .exec();
@@ -100,13 +107,15 @@ exports.activeUser = async function (email, otp) {
     const decoded = jwt.verify(user.otp, JWT_SECRET);
     if (decoded.otp === otp) {
       const activatedUser = await User.findByIdAndUpdate(user._id, {
-        isActivated: true,
-        otp: null,
+        $set: {
+          isActivated: true,
+          otp: null,
+        },
       })
         .select('_id')
         .exec();
       return { activatedUser };
-    }
+    } else throw new Error('otp miss match!');
   } catch (error) {
     return { error };
   }
@@ -163,7 +172,9 @@ exports.setOTP = async function (id, otp) {
   try {
     const encoded = jwt.sign({ otp }, JWT_SECRET, { expiresIn: OTP_EXPIRESIN });
     const updatedUser = await User.findByIdAndUpdate(id, {
-      otp: encoded,
+      $set: {
+        otp: encoded,
+      },
     }).exec();
     return { updatedUser };
   } catch (error) {
@@ -205,6 +216,13 @@ exports.getOneUser = async function (byField) {
   }
 };
 
+/**
+ * ham lay tao token luu thong tin user
+ *
+ * @async
+ * @param {object} user
+ * @returns token
+ */
 exports.createToken = async function (user) {
   const token = await jwt.sign(
     {
