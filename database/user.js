@@ -73,7 +73,7 @@ exports.updateUser = async function (byField, update = {}) {
  */
 exports.deleteUser = async function (id) {
   try {
-    const lockedUser = User.findByIdAndUpdate(id, {
+    const lockedUser = await User.findByIdAndUpdate(id, {
       isActivated: false,
     })
       .select('-hashedPwd')
