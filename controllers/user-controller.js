@@ -1,4 +1,7 @@
 const { users } = require('../database');
+const { sendOTP } = require('../utils/mailer');
+const { otpGenerator } = require('../utils/randomOTP');
+
 exports.login = async () => {
   throw new Error('Not implemented!');
 };
@@ -12,20 +15,36 @@ exports.register = async (req, res, next) => {
     return next(new Error('Fields cannot empty'));
   try {
     const { error, user } = await users.createUser(email, fullName, password);
-    if (error) next(error);
-    else {
-      const { updatedUser, error } = await users.updateUser(
-        { email: user.email },
-        { online: true }
-      );
-      console.log(updatedUser);
-    }
+    if (error) throw new Error(error.message);
+    // return next({ user, error });
+    const otp = otpGenerator();
+    await users.setOTP(user._id, otp);
+    await sendOTP(otp, email);
+    req.email = email;
+    res.redirect('activation');
   } catch (error) {
     return next(error);
   }
 };
-exports.activate = () => {
-  throw new Error('Not implemented!');
+exports.activate = async (req, res, next) => {
+  const { email } = req;
+  const { otp } = req.body;
+
+  try {
+    const { activedUser, error } = await users.activeUser(email, otp);
+    res.json(activedUser ?? error);
+  } catch (error) {
+    return next(error);
+  }
+};
+exports.addFollower = async (req, res, next) => {
+  const { userId, followerId } = req.body;
+  try {
+    const { user, error } = await users.addFollower(userId, followerId);
+    res.json(user ?? error.message);
+  } catch (error) {
+    res.json(error);
+  }
 };
 exports.index = () => {
   throw new Error('Not implemented yet!');

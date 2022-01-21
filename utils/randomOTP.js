@@ -2,7 +2,7 @@ const { random } = require('lodash');
 /**
  * ham tao chuoi otp gom cac so tu o->9 khong trung nhau, mac dinh la 6 chu so
  *
- * @param {number} max - do dai cua chuoi otp
+ * @param {number} max - @default max=6 - do dai cua chuoi otp
  * @returns chuoi otp
  */
 const otpGenerator = (max = 6) => {

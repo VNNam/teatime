@@ -1,5 +1,5 @@
 const { createTransport } = require('nodemailer');
-const { USER, PWD } = require('../config');
+const { SMTP, PASSWORD } = require('../config');
 /**
  * ham gui otp qua email cho nguoi dang ky tai khoan
  *
@@ -10,22 +10,22 @@ const { USER, PWD } = require('../config');
  */
 async function sendOTP(otp, email) {
   const tsp = createTransport({
-    host: 'Gmail',
+    service: 'Gmail',
     auth: {
-      user: USER,
-      pass: PWD,
+      user: SMTP,
+      pass: PASSWORD,
     },
   });
   try {
     await tsp.verify();
     await tsp.sendMail({
-      from: USER,
+      from: SMTP,
       to: email,
       subject: 'Active account OTP',
-      html: `<h1>Your activation code</h1><p><b>${otp}</b></p>`,
+      html: `<div>Your activation code: <h1>${otp}</h1></div>`,
     });
   } catch (error) {
-    console.log('Has error on sending otp: ', err);
+    console.log('Has error on sending otp: ', error);
   }
 }
 
