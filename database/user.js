@@ -1,5 +1,5 @@
 const { User, UserGroup } = require('./schema');
-const { hash, compare, genSalt } = require('bcrypt');
+const bcrypt = require('bcrypt');
 const { SALT_ROUND, JWT_SECRET, OTP_EXPIRESIN } = require('../config');
 const jwt = require('jsonwebtoken');
 
@@ -10,14 +10,14 @@ const jwt = require('jsonwebtoken');
  * @param {String} email
  * @returns {boolean}
  */
-const hasEmail = async (email) => {
+async function hasEmail(email) {
   try {
-    const user = await User.findOne({ email }, 'email').exec();
+    const user = await User.findOne({ email }).select('_id').exec();
     return user ? true : false;
   } catch (error) {
     console.error(error.message);
   }
-};
+}
 
 /**
  * ham tao mot user trong db
@@ -25,14 +25,14 @@ const hasEmail = async (email) => {
  * @async
  * @function createUser
  * @param {String} email
- * @param {Sring} fullName
+ * @param {String} fullName
  * @param {String} password -plaintext password
  * @returns user neu thanh cong, error neu that bai
  */
 exports.createUser = async function (email, fullName, password) {
   try {
-    if (hasEmail(email)) throw new Error('email has registerd');
-    const hashedPwd = await hash(password, SALT_ROUND);
+    if (await hasEmail(email)) throw new Error('email has registerd');
+    const hashedPwd = await bcrypt.hash(password, parseInt(SALT_ROUND));
     const user = await User.create({ email, fullName, hashedPwd });
     return { user };
   } catch (error) {
@@ -54,7 +54,9 @@ exports.updateUser = async function (byField, update = {}) {
     const updatedUser = await User.findOneAndUpdate(
       { ...byField },
       { ...update }
-    ).exec();
+    )
+      .select('-hashedPwd')
+      .exec();
     return { updatedUser };
   } catch (error) {
     return { error };
@@ -73,7 +75,9 @@ exports.deleteUser = async function (id) {
   try {
     const lockedUser = User.findByIdAndUpdate(id, {
       isActivated: false,
-    }).exec();
+    })
+      .select('-hashedPwd')
+      .exec();
     return { lockedUser };
   } catch (error) {
     return { error };
@@ -91,18 +95,16 @@ exports.deleteUser = async function (id) {
  */
 exports.activeUser = async function (email, otp) {
   try {
-    if (!hasEmail(email)) throw new Error('email is not registered');
+    if (!(await hasEmail(email))) throw new Error('email is not registered');
     const user = await User.findOne({ email }, '_id otp').exec();
     const decoded = jwt.verify(user.otp, JWT_SECRET);
     if (decoded.otp === otp) {
-      const activatedUser = await User.findByIdAndUpdate(
-        user._id,
-        {
-          isActivated: true,
-          otp: null,
-        },
-        '_id'
-      ).exec();
+      const activatedUser = await User.findByIdAndUpdate(user._id, {
+        isActivated: true,
+        otp: null,
+      })
+        .select('_id')
+        .exec();
       return { activatedUser };
     }
   } catch (error) {
@@ -122,6 +124,7 @@ exports.getUser = async function (byField, limit = 0) {
   try {
     const users = await User.find({ ...byField })
       .limit(limit)
+      .select('-hashedPwd')
       .exec();
     return { users };
   } catch (error) {
@@ -138,7 +141,8 @@ exports.getUser = async function (byField, limit = 0) {
  */
 exports.getFollowers = async function (id) {
   try {
-    const user = await User.findById(id, '_id followers')
+    const user = await User.findById(id)
+      .select('_id followers')
       .populate('followers', 'fullName')
       .exec();
     return { user };

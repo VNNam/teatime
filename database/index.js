@@ -1,4 +1,3 @@
-const { Message, UserGroup, User, Group } = require('./schema');
 const { DB_CONNECTION, DB_NAME } = require('../config');
 const mongoose = require('mongoose');
 const users = require('./user');
