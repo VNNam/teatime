@@ -16,7 +16,7 @@ async function hasEmail(email) {
     const user = await User.findOne({ email }).select('_id').exec();
     return user ? true : false;
   } catch (error) {
-    console.error(error.message);
+    return { error };
   }
 }
 
@@ -135,7 +135,7 @@ exports.getUser = async function (byField, limit = 0) {
       .limit(limit)
       .select('-hashedPwd')
       .exec();
-    return users;
+    return { users };
   } catch (error) {
     return { error };
   }
@@ -183,22 +183,6 @@ exports.setOTP = async function (id, otp) {
 };
 
 /**
- * ham kiem tra password nguoi dung nhap vao co dung khong
- *
- * @async
- * @param {String} password
- * @returns {boolean}
- */
-exports.hasPassword = async function (password, hasPassword) {
-  try {
-    const result = await bcrypt.compare(password, hasPassword)
-    return result;
-  } catch (error) {
-    console.error(error.message);
-  }
-}
-
-/**
  * ham lay thong tin 1 user
  *
  * @async
@@ -224,15 +208,38 @@ exports.getOneUser = async function (byField) {
  * @returns token
  */
 exports.createToken = async function (user) {
+
   const token = await jwt.sign(
     {
         userData: {
             _id: user._id,
             username: user.email,
+            timestamp: new Date()
         },
         exp: 60 * 60 * 60 * 60 * 1000,
     },
     JWT_KEY
   )
   return token;
+}
+
+/**
+ * ham lay kiem tra email, password khi login
+ *
+ * @async
+ * @param {string} email
+ * @param {string} password
+ * @returns token hoac error
+ */
+exports.authenticate = async function (email, password) {
+  try {
+    const user = await User.findOne({ email});
+    if(!user) throw new Error(`Email does not exist`);
+    const checkPassword = await bcrypt.compare(password, user.hashedPwd)
+    if(!checkPassword) throw new Error(`incorrect password`);
+    const token = await this.createToken(user);
+    return { token }
+  } catch (error) {
+    return { error };
+  }
 }

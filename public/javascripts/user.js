@@ -22,6 +22,6 @@ async function login(e) {
 
         location.href = '/';
     } catch (error) {
-        console.log(error);
+        return alert("Login false!!")
     }
 }

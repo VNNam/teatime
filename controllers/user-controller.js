@@ -5,14 +5,8 @@ const { otpGenerator } = require('../utils/randomOTP');
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await users.getOneUser({ email: email});
-    if(!user) throw new Error(`can't found account`);
-
-    if(! await users.hasPassword(password, user.hashedPwd)) 
-      throw new Error(`error check decoding password`);
-
-    const token = await users.createToken(user);
-
+    const {token, error} = await users.authenticate(email, password);
+    if(!token) throw error;
     return res
       .cookie("token", token, { maxAge: 900000 })
       .json({ 
