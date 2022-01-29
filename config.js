@@ -8,5 +8,5 @@ module.exports = {
   PASSWORD: process.env.PASSWORD,
   JWT_SECRET: process.env.JWT_SECRET,
   OTP_EXPIRESIN: process.env.OTP_EXPIRESIN,
+  SESSION_SECRET: process.env.SS_SECRET,
 };
-console.log(process.env.SMTP);

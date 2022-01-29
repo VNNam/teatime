@@ -22,7 +22,10 @@ async function sendOTP(otp, email) {
       from: SMTP,
       to: email,
       subject: 'Active account OTP',
-      html: `<div>Your activation code: <h1>${otp}</h1></div>`,
+      html: `<div>Your activation code: <h1>${otp
+        .split('')
+        .join(' ')
+        .toString()}</h1></div>`,
     });
   } catch (error) {
     console.log('Has error on sending otp: ', error);

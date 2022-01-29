@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const { SALT_ROUND, JWT_SECRET, OTP_EXPIRESIN } = require('../config');
 const jwt = require('jsonwebtoken');
 const { Types } = require('mongoose');
+const { createToken, verifyToken } = require('../utils/token');
 
 /**
  * ham kiem tra email da co trong db hay chua
@@ -14,6 +15,7 @@ const { Types } = require('mongoose');
 async function hasEmail(email) {
   try {
     const user = await User.findOne({ email }).select('_id').exec();
+    console.log(user);
     return user ? true : false;
   } catch (error) {
     console.error(error.message);
@@ -32,10 +34,48 @@ async function hasEmail(email) {
  */
 exports.createUser = async function (email, fullName, password) {
   try {
-    if (await hasEmail(email)) throw new Error('email has registerd');
+    if (await hasEmail(email)) throw new Error('email has registered');
     const hashedPwd = await bcrypt.hash(password, parseInt(SALT_ROUND));
     const user = await User.create({ email, fullName, hashedPwd });
     return { user };
+  } catch (error) {
+    return { error };
+  }
+};
+/**
+ * kiem tra otp
+ *
+ * @param {string} email
+ * @param {string} otp
+ * @returns boolean | error
+ */
+exports.verifyOTP = async function (email, otp) {
+  try {
+    const user = await User.findOne({ email }).select('otp').exec();
+    const decoded = jwt.verify(user.otp, JWT_SECRET);
+    return decoded.otp === otp;
+  } catch (error) {
+    return { error };
+  }
+};
+/**
+ *
+ * @param {string} email
+ * @param {string} newPassword
+ * @returns updatedUser | error
+ */
+exports.updatePassword = async function (email, newPassword) {
+  try {
+    const updatedUser = await User.updateOne(
+      { email },
+      {
+        $set: {
+          hashedPwd: await bcrypt.hash(newPassword, parseInt(SALT_ROUND)),
+        },
+      }
+    );
+    console.log(updatedUser);
+    return { updatedUser };
   } catch (error) {
     return { error };
   }
@@ -168,14 +208,19 @@ exports.getFollowers = async function (id) {
  * @param {string} otp - 6 digits
  * @returns
  */
-exports.setOTP = async function (id, otp) {
+exports.setOTP = async function (fields, otp) {
   try {
     const encoded = jwt.sign({ otp }, JWT_SECRET, { expiresIn: OTP_EXPIRESIN });
-    const updatedUser = await User.findByIdAndUpdate(id, {
-      $set: {
-        otp: encoded,
-      },
-    }).exec();
+    const updatedUser = await User.updateOne(
+      { ...fields },
+      {
+        $set: {
+          otp: encoded,
+        },
+      }
+    )
+      .select('-hashedPwd')
+      .exec();
     return { updatedUser };
   } catch (error) {
     return { error };
@@ -191,6 +236,24 @@ exports.addFollower = async function (userId, followerId) {
     followers.push(followerId);
     const user = await User.updateOne({ _id: userId }, { followers });
     return { user };
+  } catch (error) {
+    return { error };
+  }
+};
+exports.signIn = async function (email, password) {
+  try {
+    const user = await User.findOne({ email }).exec();
+    if (!user) throw new Error('khong ton tai user');
+    const chkPwd = await bcrypt.compare(password, user.hashedPwd);
+    if (!chkPwd) throw new Error('Pwd khong dung');
+    else {
+      const token = createToken(
+        { username: user.fullName, id: user._id, loginAt: new Date() },
+        '2h'
+      );
+      await User.findByIdAndUpdate(user._id, { online: true });
+      return { token };
+    }
   } catch (error) {
     return { error };
   }

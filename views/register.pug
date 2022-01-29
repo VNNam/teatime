@@ -1,0 +1,21 @@
+extends layout 
+block content 
+  .container 
+    .flex
+      .column-sidebar 
+        .title 
+          form.register-form(action="", method="POST")
+            h3 Register 
+            if error
+              .error
+                p #{error.message}
+            label(for="fullName") Your name 
+            input#fullName(type="text", name="fullName", required)
+            label(for="email") Your email 
+            input#email(type="email", name="email", required) 
+            label(for="password") Password
+            input#password(type="password", name="password")
+            label(for="confirmpassword") Confirm password 
+            input#confirmpassword(type="password", name="confirmpassword")
+            button(type="submit") Register
+  script(src="/javascripts/confirmpwd.js") 

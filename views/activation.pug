@@ -1,0 +1,14 @@
+extends layout 
+block content 
+  .container
+    .flex 
+      .title
+        form.activation-form(action="activate", method="post") 
+          h3 Activating your account.
+          if error 
+            .error #{error.message}
+          label(for="otp") Enter OTP has been sent to your email #{yourEmail} 
+          input#otp(type="text", name="otp", pattern="^\\d{6}$", title="6 digits is required!", placeholder="6 digits OTP")
+          button(type="submit") Active now
+        p If you haven't recived OTP, 
+          button#generateOTP(type="button")  Generate new OTP! 

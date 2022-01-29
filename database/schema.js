@@ -73,4 +73,13 @@ const messageSchema = new Schema({
  */
 const Message = model('Message', messageSchema);
 
-module.exports = { User, Group, UserGroup, Message };
+const lockedTokenSchema = new Schema({
+  token: String,
+  expiresAt: Date,
+});
+/**
+ * model: LockedToken
+ */
+const LockedToken = model('LockedToken', lockedTokenSchema);
+
+module.exports = { User, Group, UserGroup, Message, LockedToken };
