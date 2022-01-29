@@ -9,6 +9,8 @@ const {
   forgotPassword,
   changePassword,
   verifyOTP,
+  isActivated,
+  generateOTP,
 } = require('../controllers/user-controller');
 
 var router = express.Router();
@@ -18,7 +20,7 @@ router.get('/', userAuthenticated, index);
 router.get('/login', (req, res) => {
   res.render('login');
 });
-router.post('/login', login);
+router.post('/login', isActivated, login);
 router.get('/register', (req, res) => {
   res.render('register');
 });
@@ -29,6 +31,7 @@ router.get('/activate', (req, res) => {
     yourEmail: '***' + email?.substring(3),
   });
 });
+router.get('/otp', generateOTP);
 router.post('/activate', activate);
 router.get('/forgot', (req, res) => {
   res.render('forgot-password');

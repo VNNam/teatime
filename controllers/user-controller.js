@@ -5,8 +5,9 @@ const { sendOTP } = require('../utils/mailer');
 const { otpGenerator } = require('../utils/randomOTP');
 const { verifyToken } = require('../utils/token');
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body;
+
   try {
     if (!email || !password)
       throw new Error('username & password cannot be empty!');
@@ -18,7 +19,19 @@ exports.login = async (req, res) => {
     res.render('login', { error });
   }
 };
-
+exports.isActivated = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    const resp = await users.isActivated(email);
+    const { error } = resp;
+    if (error) throw error;
+    if (resp) next();
+    req.session.email = email;
+    res.redirect('activate');
+  } catch (error) {
+    next(error);
+  }
+};
 exports.logout = () => {
   throw new Error('Not implemented!');
 };
@@ -75,10 +88,12 @@ exports.userAuthenticated = async (req, res, next) => {
 };
 exports.generateOTP = async (req, res, next) => {
   const { email } = req.session;
+  console.log(email);
   try {
     const otp = otpGenerator();
 
     const { updatedUser, error } = await users.setOTP({ email }, otp);
+    await sendOTP(otp, email);
     return res.json(updatedUser ?? error);
   } catch (error) {
     return res.json(error);
