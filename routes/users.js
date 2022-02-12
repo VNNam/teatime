@@ -9,6 +9,7 @@ const {
   forgotPassword,
   changePassword,
   verifyOTP,
+  search
 } = require('../controllers/user-controller');
 
 var router = express.Router();
@@ -41,4 +42,5 @@ router.get('/change-password', (req, res) => {
 router.post('/change-password', changePassword);
 
 router.post('/followers', addFollower);
+router.get('/search', search)
 module.exports = router;

@@ -258,3 +258,16 @@ exports.signIn = async function (email, password) {
     return { error };
   }
 };
+
+exports.searchKey = async function(key) {
+  try {
+    const users = await User.find({
+      email: {
+        $regex: key
+      }
+    })
+    return users
+  } catch (error) {
+    return { error };
+  }
+}
