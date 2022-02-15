@@ -1,0 +1,11 @@
+div#pinned-message.row.pinned-message pinned message here
+#show-message.row.chat-box
+  if messages
+    each val, index in messages
+      if index%2
+        p.text-left #{val.messageContent}
+      else 
+        p.text-right #{val.messageContent}
+form#form-chat.row.form-floating(action= "", method="post")
+  input#message.col.form-control(name="message", type='text', autocomplete='off') 
+  button.col-2.btn.btn-outline-dark(type="submit") Send

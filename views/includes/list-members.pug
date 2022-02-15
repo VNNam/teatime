@@ -1,0 +1,14 @@
+button.btn.btn-sm.btn-outline-primary(type='button', data-bs-toggle="modal", data-bs-target="#addMemberModal") +Add Member
+div#addMemberModal.modal(data-bs-backdrop="static", tabindex="-1", aria-labelledby="addMemberModalLabel", aria-hidden="true")
+  .modal-dialog 
+    .modal-content 
+      .modal-header 
+        h5#addMemberModalLabel.modal-title Add member
+      .modal-body 
+        form#form-add-member(action='' , method="post")
+          label.m-2(for="nameGroup")  email
+          input#email.form-control.m-2(type="email", name="email")
+          button.btn.btn-secondary.m-2(type="button", data-bs-dismiss="modal") Close 
+          button.btn.btn-primary(type="submit") +Add 
+#list-members.show-members 
+  

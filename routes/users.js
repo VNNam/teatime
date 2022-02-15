@@ -1,5 +1,13 @@
 var express = require('express');
 const {
+  groupsOfUser,
+  createGroup,
+} = require('../controllers/group-controller');
+const {
+  getGroupMessage,
+  createMessage,
+} = require('../controllers/message-controller');
+const {
   index,
   register,
   addFollower,
@@ -11,6 +19,7 @@ const {
   verifyOTP,
   isActivated,
   generateOTP,
+  logout,
 } = require('../controllers/user-controller');
 
 var router = express.Router();
@@ -42,6 +51,14 @@ router.get('/change-password', (req, res) => {
   res.render('change-password');
 });
 router.post('/change-password', changePassword);
+router.post('/logout', logout);
 
-router.post('/followers', addFollower);
+router.get('/:id/groups', groupsOfUser);
+router.post('/:id/groups', createGroup);
+
+router.get('/:userId/groups/:gId', getGroupMessage);
+router.post('/:userId/groups/:gId', createMessage);
+
+router.post('/:id/followers', addFollower);
+
 module.exports = router;

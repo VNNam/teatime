@@ -7,6 +7,9 @@ var session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var messageRouter = require('./routes/messages');
+var groupRouter = require('./routes/groups');
+
 const { SESSION_SECRET } = require('./config');
 const { userAuthenticated } = require('./controllers/user-controller');
 
@@ -32,6 +35,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 // app.use(userAuthenticated);
 app.use('/users', usersRouter);
+app.use('/messages', messageRouter);
+app.use('/groups', groupRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

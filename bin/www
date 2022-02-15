@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('teatime:server');
 var http = require('http');
 var { teatimedb_connect } = require('../database');
+const { Server } = require('socket.io');
 
 teatimedb_connect()
   .then((db) => console.log(db.models))
@@ -25,6 +26,16 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+const io = new Server();
+io.attach(server);
+io.on('connection', (socket) => {
+  console.log('socket.io server has created');
+  socket.emit('room1', { message: 'i am back' });
+  socket.on('let', (msg) => {
+    console.log(msg);
+  });
+});
 
 /**
  * Listen on provided port, on all network interfaces.

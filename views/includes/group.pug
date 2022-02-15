@@ -1,0 +1,17 @@
+- var route = '/users/'+user.id+'/groups'
+button.btn.btn-sm.btn-outline-primary(type="button", data-bs-toggle="modal", data-bs-target="#createGroupModal")  + New group
+div#createGroupModal.modal(data-bs-backdrop="static", tabindex="-1", aria-labelledby="createGroupModalLabel", aria-hidden="true")
+  .modal-dialog 
+    .modal-content 
+      .modal-header 
+        h5#createGroupModalLabel.modal-title Create a chat group 
+      .modal-body 
+        form#form-create-group(action= route , method="post")
+          label.m-2(for="nameGroup")  Named group
+          input#name-group.form-control.m-2(type="text", name="name-group")
+          button.btn.btn-secondary.m-2(type="button", data-bs-dismiss="modal") Close 
+          button.btn.btn-primary(type="submit") Saves 
+
+ul#showed-list 
+  each val, index in groups 
+    li: a(href='', src= route + '/' + val.group._id, key= index) #{val.group.name}

@@ -1,0 +1,21 @@
+extends layout 
+block content 
+  header 
+    h1.page-heading Chat page 
+    nav 
+      ul.site-nav 
+        li: a(href="/groups") Group
+        li: a(href="/groups") Followed
+        li.nav-right
+          include includes/logout.pug
+  main.container.grid
+    .sidebar-left.title 
+        p group chat here
+    .chatbox.title
+      .pin-message pin message text here 
+      .chat-text text message add here 
+      form(action="", method="post") 
+        input#texting(type="text", name="texting")
+        button(type="submit") send 
+    .sidebar-right.title 
+        p for something

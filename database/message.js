@@ -7,7 +7,7 @@ const { Message } = require('./schema');
  * @param {number} skip ,@default 0
  * @returns messages | error
  */
-async function getMessages(groupId, limit = 100, skip = 0) {
+async function getMessages(groupId, limit = 5, skip = 0) {
   try {
     const messages = await Message.find({
       group: groupId,
@@ -16,6 +16,7 @@ async function getMessages(groupId, limit = 100, skip = 0) {
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
+      .populate('user', 'fullName')
       .exec();
     return { messages };
   } catch (error) {
