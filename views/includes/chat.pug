@@ -6,6 +6,7 @@ div#pinned-message.row.pinned-message pinned message here
         p.text-left #{val.messageContent}
       else 
         p.text-right #{val.messageContent}
-form#form-chat.row.form-floating(action= "", method="post")
+
+form#form-chat.row.form-floating
   input#message.col.form-control(name="message", type='text', autocomplete='off') 
   button.col-2.btn.btn-outline-dark(type="submit") Send

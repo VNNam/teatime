@@ -4,6 +4,8 @@ const users = require('./user');
 const groups = require('./group');
 const messages = require('./message');
 const lockedTokens = require('./lockToken');
+const { User, Group, UserGroup, Message, LockedToken } = require('./schema');
+
 /**
  * ket noi den mongodb
  *
@@ -18,4 +20,17 @@ async function teatimedb_connect() {
   }
 }
 
-module.exports = { teatimedb_connect, users, groups, messages, lockedTokens };
+module.exports = {
+  teatimedb_connect,
+  users,
+  groups,
+  messages,
+  lockedTokens,
+
+  // Shemas
+  User,
+  Group,
+  UserGroup,
+  Message,
+  LockedToken,
+};

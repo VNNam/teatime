@@ -48,6 +48,7 @@ async function createMessage(
       messageContent,
       link,
       pinned,
+      createdAt: new Date(),
     });
     return { message };
   } catch (error) {

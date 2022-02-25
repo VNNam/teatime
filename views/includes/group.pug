@@ -14,4 +14,4 @@ div#createGroupModal.modal(data-bs-backdrop="static", tabindex="-1", aria-labell
 
 ul#showed-list 
   each val, index in groups 
-    li: a(href='', src= route + '/' + val.group._id, key= index) #{val.group.name}
+    li: a(href= '/groups/' + val.group._id + '/detail', key= index) #{val.group.name}
