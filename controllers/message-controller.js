@@ -1,5 +1,5 @@
 const { messages } = require('../database');
-const { boardcardAll } = require('../socket');
+const { boardcardAll, boardcardToGroup } = require('../socket');
 
 exports.getGroupMessage = async (req, res, next) => {
   try {
@@ -17,7 +17,7 @@ exports.createMessage = async (req, res, next) => {
     const msg = req.body.message;
     const resp = await messages.createMessage(gId, userId, msg);
 
-    boardcardAll(req.body.message);
+    boardcardToGroup(gId, { message: resp.message, userId: userId });
 
     res.json({ ...resp });
   } catch (error) {
