@@ -163,3 +163,15 @@ exports.changePassword = async (req, res, next) => {
     res.render('change-password', { error });
   }
 };
+
+exports.search = async (req, res) => {
+  const { key } = req.query;
+  try {
+    const listUser = await users.searchKey(key);
+    return res.json({ listUser})
+  } catch (error) {
+    return res.json(error);
+  }
+}
+
+
