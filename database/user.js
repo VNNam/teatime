@@ -219,7 +219,7 @@ exports.setOTP = async function (fields, otp) {
         },
       }
     )
-      .select('-hashedPwd')
+      .select('_id email')
       .exec();
     return { updatedUser };
   } catch (error) {
@@ -259,15 +259,23 @@ exports.signIn = async function (email, password) {
   }
 };
 
-exports.searchKey = async function(key) {
+exports.isActivated = async (email) => {
   try {
-    const users = await User.find({
-      email: {
-        $regex: key
-      }
-    })
-    return users
+    const user = await User.findOne({ email }).select('_id isActivated').exec();
+    return user.isActivated;
   } catch (error) {
     return { error };
   }
-}
+};
+exports.searchKey = async function (key) {
+  try {
+    const users = await User.find({
+      email: {
+        $regex: key,
+      },
+    });
+    return users;
+  } catch (error) {
+    return { error };
+  }
+};

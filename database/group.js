@@ -13,7 +13,8 @@ async function createGroup(userId, name) {
     const group = await Group.create({
       name,
       admin: userId,
-    }).exec();
+    });
+    console.log(group);
     return { group };
   } catch (error) {
     return { error };
@@ -188,6 +189,20 @@ async function leaveGroup(groupId, userId) {
   }
 }
 
+async function getGroupsOfUser(userId) {
+  try {
+    const userGroups = await UserGroup.find({
+      user: userId,
+    })
+      .populate('group', '_id name admin')
+      .exec();
+    if (userGroups.length) return { userGroups };
+    else throw new Error('User has not joined any group.');
+  } catch (error) {
+    return { error };
+  }
+}
+
 module.exports = {
   createGroup,
   updateGroup,
@@ -198,4 +213,5 @@ module.exports = {
   getMembers,
   leaveGroup,
   setGroupAdmin,
+  getGroupsOfUser,
 };

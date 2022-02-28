@@ -1,0 +1,13 @@
+.chat-box {
+  min-height: 20em;
+  max-height: 20em;
+  padding: 0.5em;
+  border: 1px solid lightblue;
+  border-radius: 0.5em;
+  margin: 2px;
+  overflow: scroll;
+}
+.pinned-message {
+  margin: auto;
+  padding-bottom: 2em;
+}

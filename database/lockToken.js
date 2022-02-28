@@ -1,4 +1,3 @@
-const { token } = require('morgan');
 const { verifyToken } = require('../utils/token');
 const { LockedToken } = require('./schema');
 

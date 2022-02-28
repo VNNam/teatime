@@ -1,26 +1,46 @@
 const res = require('express/lib/response');
-const { users } = require('../database');
+const { users, lockedTokens, groups } = require('../database');
 const { User } = require('../database/schema');
 const { sendOTP } = require('../utils/mailer');
 const { otpGenerator } = require('../utils/randomOTP');
 const { verifyToken } = require('../utils/token');
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body;
+
   try {
     if (!email || !password)
       throw new Error('username & password cannot be empty!');
     const { token, error } = await users.signIn(email, password);
     if (error) throw error;
     res.cookie('token', token);
-    res.redirect('/users');
+    res.status(200).redirect('/users');
   } catch (error) {
-    res.render('login', { error });
+    res.status(300).render('login', { error });
   }
 };
-
-exports.logout = () => {
-  throw new Error('Not implemented!');
+exports.isActivated = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    const resp = await users.isActivated(email);
+    const { error } = resp;
+    if (error) throw error;
+    if (resp) return next();
+    req.session.email = email;
+    res.redirect('activate');
+  } catch (error) {
+    next(error);
+  }
+};
+exports.logout = async (req, res, next) => {
+  const { token } = req.cookies;
+  try {
+    await lockedTokens.addToBlackList(token);
+    res.cookie('token', '', { maxAge: 0 });
+    res.redirect('/');
+  } catch (error) {
+    next(error);
+  }
 };
 exports.register = async (req, res, next) => {
   try {
@@ -64,10 +84,11 @@ exports.addFollower = async (req, res, next) => {
 exports.userAuthenticated = async (req, res, next) => {
   const { token } = req.cookies;
   try {
-    if (!token) next({ notLoggedIn: true });
+    if (!token || (await lockedTokens.isLocked(token)))
+      next({ notLoggedIn: true });
     else {
       const { username, id, exp } = verifyToken(token);
-      next({ username });
+      next({ username, id });
     }
   } catch (error) {
     next(error);
@@ -75,19 +96,33 @@ exports.userAuthenticated = async (req, res, next) => {
 };
 exports.generateOTP = async (req, res, next) => {
   const { email } = req.session;
+  console.log(email);
   try {
     const otp = otpGenerator();
 
     const { updatedUser, error } = await users.setOTP({ email }, otp);
+    await sendOTP(otp, email);
     return res.json(updatedUser ?? error);
   } catch (error) {
     return res.json(error);
   }
 };
 exports.index = async (data, req, res, next) => {
-  const { username, notLoggedIn } = await data;
+  const { username, id, notLoggedIn } = await data;
+  console.log(username, '/', id);
   if (notLoggedIn) return res.redirect('users/login');
-  res.send(`Welcome home, ${username}`);
+  try {
+    const { userGroups, error } = await groups.getGroupsOfUser(id);
+    console.log(userGroups, '/', error);
+
+    res.render('user-page', {
+      user: { id, username },
+      groups: userGroups ?? [],
+      error,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 exports.forgotPassword = async (req, res, next) => {
   const { email } = req.body;
