@@ -5,10 +5,11 @@ div#addMemberModal.modal(data-bs-backdrop="static", tabindex="-1", aria-labelled
       .modal-header 
         h5#addMemberModalLabel.modal-title Add member
       .modal-body 
-        form#form-add-member(action='' , method="post")
-          label.m-2(for="nameGroup")  email
-          input#email.form-control.m-2(type="email", name="email")
+        form#form-add-member
+          label.m-2(for="nameGroup")  Invited email
+          input#invited-email.form-control.m-2(type="invited email", name="email")
           button.btn.btn-secondary.m-2(type="button", data-bs-dismiss="modal") Close 
-          button.btn.btn-primary(type="submit") +Add 
+          button#add-group-member-button.btn.btn-primary(type="button") +Add
+          div#server-message  
 #list-members.show-members 
   

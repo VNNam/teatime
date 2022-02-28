@@ -8,6 +8,10 @@ io.on(Events.SOCKET_CONNECT, function (socket) {
   socket.on(Events.GROUP_CONNECT, ({ groupId }) => {
     socket.join(groupId);
   });
+
+  socket.on(Events.USER_IS_TYPING, ({ groupId, username }) => {
+    socket.broadcast.to(groupId).emit(Events.USER_IS_TYPING, { username });
+  });
 });
 
 function boardcardToGroup(groupId, { message, userId }) {

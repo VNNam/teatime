@@ -80,3 +80,34 @@ exports.getGroup = async (data, req, res, next) => {
     next(error);
   }
 };
+exports.beMemberOfGroupByEmail = async (data, req, res, next) => {
+  try {
+    const { notLoggedIn } = await data;
+    if (notLoggedIn) return res.redirect('users/login');
+
+    const { groupId, email } = req.body;
+
+    const userWithThatEmail = await User.findOne({ email });
+    if (!userWithThatEmail) throw new Error('User 404');
+
+    const groupWithThatGroupId = await Group.findById(groupId);
+    if (!groupWithThatGroupId) throw new Error('Group 404');
+
+    const memberWithThatEmailAndGroupId = await UserGroup.findOne({
+      user: userWithThatEmail._id,
+      group: groupId,
+    });
+    if (memberWithThatEmailAndGroupId) throw new Error('Can not add twice');
+
+    const newMember = new UserGroup({
+      group: groupId,
+      user: userWithThatEmail._id,
+      joinedAt: new Date(),
+    });
+    await UserGroup.create(newMember);
+
+    res.json({ message: 'add member success' });
+  } catch (error) {
+    res.json({ error: true, message: error.message });
+  }
+};
