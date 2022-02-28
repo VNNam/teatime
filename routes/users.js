@@ -17,13 +17,10 @@ const {
   forgotPassword,
   changePassword,
   verifyOTP,
-<<<<<<< HEAD
   isActivated,
   generateOTP,
   logout,
-=======
-  search
->>>>>>> main
+  search,
 } = require('../controllers/user-controller');
 
 var router = express.Router();
@@ -65,9 +62,6 @@ router.post('/:userId/groups/:gId', createMessage);
 
 router.post('/:id/followers', addFollower);
 
-<<<<<<< HEAD
-=======
 router.post('/followers', addFollower);
-router.get('/search', search)
->>>>>>> main
+router.get('/search', search);
 module.exports = router;
