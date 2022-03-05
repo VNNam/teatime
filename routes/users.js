@@ -38,7 +38,7 @@ router.post('/register', register);
 router.get('/activate', (req, res) => {
   const { email } = req.session;
   res.render('activation', {
-    yourEmail: '***' + email?.substring(3),
+    yourEmail: '***' + email.substring(3),
   });
 });
 router.get('/otp', generateOTP);
