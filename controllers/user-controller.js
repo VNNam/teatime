@@ -76,7 +76,7 @@ exports.addFollower = async (req, res, next) => {
   const { userId, followerId } = req.body;
   try {
     const { user, error } = await users.addFollower(userId, followerId);
-    res.json(user ?? error.message);
+    res.json(user ? user : error.message);
   } catch (error) {
     res.json(error);
   }
@@ -102,7 +102,7 @@ exports.generateOTP = async (req, res, next) => {
 
     const { updatedUser, error } = await users.setOTP({ email }, otp);
     await sendOTP(otp, email);
-    return res.json(updatedUser ?? error);
+    return res.json(updatedUser ? updatedUser : error);
   } catch (error) {
     return res.json(error);
   }
@@ -117,7 +117,7 @@ exports.index = async (data, req, res, next) => {
 
     res.render('user-page', {
       user: { id, username },
-      groups: userGroups ?? [],
+      groups: userGroups ? userGroups : [],
       error,
     });
   } catch (error) {
@@ -168,10 +168,8 @@ exports.search = async (req, res) => {
   const { key } = req.query;
   try {
     const listUser = await users.searchKey(key);
-    return res.json({ listUser})
+    return res.json({ listUser });
   } catch (error) {
     return res.json(error);
   }
-}
-
-
+};
